@@ -21,9 +21,9 @@ ending_font = pygame.font.SysFont("Arial", 40)
 win_text = ending_font.render("You Win!", True, "black", None)
 lose_text = ending_font.render("You lose.", True, "black", None)
 tie_text = ending_font.render("You Tied", True, "black", None)
-win_text_rect = win_text.get_rect(center = (screen_width/2, screen_height/2))
-lose_text_rect = lose_text.get_rect(center = (screen_width/2, screen_height/2))
-tie_text_rect = tie_text.get_rect(center = (screen_width/2, screen_height/2))
+win_text_rect = win_text.get_rect(center = (screen_width/2, screen_height/2.35))
+lose_text_rect = lose_text.get_rect(center = (screen_width/2, screen_height/2.35))
+tie_text_rect = tie_text.get_rect(center = (screen_width/2, screen_height/2.35))
 
 cards_folder = Path("playingcards")
 
@@ -78,23 +78,23 @@ def printcardvalue(total, x, y, person):
     screen.blit(card_value_text, card_value_rect)
 
 def check(total, dealertotal): #checks to see if you win by checking your card values against the dealer's
-  if total == 21:
-    screen.blit(win_text, win_text_rect)
-  elif total > 21:
-    screen.blit(lose_text, lose_text_rect)
-  else:
-    if dealertotal == total:
-        screen.blit(tie_text, tie_text_rect)
-    if dealertotal > total and dealertotal < 21:
+    if total == 21:
+        screen.blit(win_text, win_text_rect)
+    elif total > 21:
         screen.blit(lose_text, lose_text_rect)
     else:
-        screen.blit(win_text, win_text_rect)
+        if dealertotal == total:
+            screen.blit(tie_text, tie_text_rect)
+        if dealertotal > total and dealertotal < 21:
+            screen.blit(lose_text, lose_text_rect)
+        # else:
+        #     screen.blit(win_text, win_text_rect)
 
 
 running = True    #game loop; handles graphics
 #firstcard = cardimages[random.choice(suits)][random.choice(numbers)]
 drawcards = False
-stand = False
+# stand = False
 
 playerhand = []
 computerhand = []
@@ -110,36 +110,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:    # adds a new card
-            if event.key == pygame.K_SPACE and len(playerhand) < 5 and stand != True:   # caps the draws to 5 total cards
+            if event.key == pygame.K_SPACE and len(playerhand) < 5:   # caps the draws to 5 total cards
                 playerhand.append(createcard())
-                drawcards = False
             if event.key == pygame.K_RETURN:    #tells when to stop drawing cards
-                while getcardtotal(computerhand) < getcardtotal(playerhand) and getcardtotal(computerhand) < 21:
+                if getcardtotal(computerhand) < getcardtotal(playerhand) and getcardtotal(computerhand) < 21:
                     computerhand.append(createcard())
                     drawhandtoscreen(computerhand, 136, screen_height/6, 125)
-                    pygame.display.flip()
-                pygame.time.wait(1000)   #flip screen and then wait (in milliseconds)
                 check(getcardtotal(playerhand), getcardtotal(computerhand))
-                stand = True
 
-    if drawcards == False:    #randomizes cards and does it once
-        screen.fill((156, 180, 217))
 
-        drawhandtoscreen(playerhand, 136, screen_height*1.75/3, 125)
-        drawhandtoscreen(computerhand, 136, screen_height/6, 125)
+    #randomizes cards and does it once
+    screen.fill((156, 180, 217))
 
-        card_value_text = font.render("Your total is " + str(getcardtotal(playerhand)), True, "black", None)    #prints the total combined values
-        
-        card_value_text = font.render("Your total is " + str(getcardtotal(playerhand)), True, "black", None)
-        
-        #card_value_rect = card_value_text.get_rect(midtop = text_position)
-        printcardvalue(getcardtotal(playerhand), screen_width/2, screen_height*8/9, "Player")
-        printcardvalue(getcardtotal(computerhand), screen_width/2, screen_height*1/9, "Computer")
-        #screen.blit(card_value_text, card_value_rect)
-        drawcards = True
-        pygame.display.flip()
-    elif stand == True:
+    drawhandtoscreen(playerhand, 136, screen_height*1.75/3, 125)
+    drawhandtoscreen(computerhand, 136, screen_height/6, 125)
 
-        pygame.display.flip()
+    card_value_text = font.render("Your total is " + str(getcardtotal(playerhand)), True, "black", None)    #prints the total combined values
+    
+    card_value_text = font.render("Your total is " + str(getcardtotal(computerhand)), True, "black", None)
+    
+    printcardvalue(getcardtotal(playerhand), screen_width/2, screen_height*8/9, "Player")
+    printcardvalue(getcardtotal(computerhand), screen_width/2, screen_height*1/9, "Computer")
+
+    pygame.display.flip()
 pygame.quit()
 
