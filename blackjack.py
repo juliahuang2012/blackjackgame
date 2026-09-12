@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+from pathlib import Path
 
 pygame.init()  
 
@@ -24,10 +25,13 @@ win_text_rect = win_text.get_rect(center = (screen_width/2, screen_height/2))
 lose_text_rect = lose_text.get_rect(center = (screen_width/2, screen_height/2))
 tie_text_rect = tie_text.get_rect(center = (screen_width/2, screen_height/2))
 
+cards_folder = Path("playingcards")
+
 for suit in suits:  #loading card image files into a dictionary by suit and number
     cardimages[suit] = {}
     for number in numbers:
-        card = pygame.image.load("playing cards\\" + str(number) + "_of_" + suit + ".png")
+        card_filename = f"{number}_of_{suit}.png"
+        card = pygame.image.load(cards_folder / card_filename)
         card = pygame.transform.scale(card, (cardsize*5, cardsize*7))
         cardimages[suit][number] = card
 
