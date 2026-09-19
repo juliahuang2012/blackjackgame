@@ -21,9 +21,12 @@ ending_font = pygame.font.SysFont("Arial", 40)
 win_text = ending_font.render("You Win!", True, "black", None)
 lose_text = ending_font.render("You lose.", True, "black", None)
 tie_text = ending_font.render("You Tied", True, "black", None)
-win_text_rect = win_text.get_rect(center = (screen_width/2, screen_height/2.35))
-lose_text_rect = lose_text.get_rect(center = (screen_width/2, screen_height/2.35))
-tie_text_rect = tie_text.get_rect(center = (screen_width/2, screen_height/2.35))
+win_text_rect = win_text.get_rect(center = (screen_width/2, screen_height/2.2))
+lose_text_rect = lose_text.get_rect(center = (screen_width/2, screen_height/2.2))
+tie_text_rect = tie_text.get_rect(center = (screen_width/2, screen_height/2.2))
+
+global state
+state = "gameplay"
 
 cards_folder = Path("playingcards")
 
@@ -79,17 +82,22 @@ def printcardvalue(total, x, y, person):
 
 def check(total, dealertotal): #checks to see if you win by checking your card values against the dealer's
     if total == 21:
-        screen.blit(win_text, win_text_rect)
-    elif total > 21:
-        screen.blit(lose_text, lose_text_rect)
-    else:
-        if dealertotal == total:
-            screen.blit(tie_text, tie_text_rect)
-        if dealertotal > total and dealertotal < 21:
-            screen.blit(lose_text, lose_text_rect)
-        # else:
-        #     screen.blit(win_text, win_text_rect)
-
+        if total > dealertotal or total < dealertotal:
+            return "won"
+        if total == dealertotal:
+            return "tie"
+    if total < 21:
+        if total > dealertotal:
+            return "won"
+        if total < dealertotal:
+            if dealertotal > 21:
+                return "won"
+            if dealertotal <= 21:
+                return "lose"
+        if total == dealertotal:
+            return "tie"
+    if total > 21:
+        return "lose" 
 
 running = True    #game loop; handles graphics
 #firstcard = cardimages[random.choice(suits)][random.choice(numbers)]
@@ -110,15 +118,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:    # adds a new card
-            if event.key == pygame.K_SPACE and len(playerhand) < 5:   # caps the draws to 5 total cards
+            if event.key == pygame.K_SPACE and len(playerhand) < 5 and state == "gameplay":   # caps the draws to 5 total cards
                 playerhand.append(createcard())
             if event.key == pygame.K_RETURN:    #tells when to stop drawing cards
                 if getcardtotal(computerhand) < getcardtotal(playerhand) and getcardtotal(computerhand) < 21:
                     computerhand.append(createcard())
                     drawhandtoscreen(computerhand, 136, screen_height/6, 125)
-                check(getcardtotal(playerhand), getcardtotal(computerhand))
-
-
+                state = check(getcardtotal(playerhand), getcardtotal(computerhand))
+                
     #randomizes cards and does it once
     screen.fill((156, 180, 217))
 
@@ -132,6 +139,12 @@ while running:
     printcardvalue(getcardtotal(playerhand), screen_width/2, screen_height*8/9, "Player")
     printcardvalue(getcardtotal(computerhand), screen_width/2, screen_height*1/9, "Computer")
 
+    if state == "lose":
+        screen.blit(lose_text, lose_text_rect)
+    if state == "won":
+        screen.blit(win_text, win_text_rect)
+    if state == "tie":
+        screen.blit(tie_text, tie_text_rect)
     pygame.display.flip()
 pygame.quit()
 
